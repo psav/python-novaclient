@@ -93,16 +93,23 @@ class FlavorManager(base.ManagerWithFind):
     resource_class = Flavor
     is_alphanum_id_allowed = True
 
-    def list(self, detailed=True, is_public=True):
+    def list(self, detailed=True, is_public=True, marker=None, limit=None):
         """
         Get a list of all flavors.
 
         :rtype: list of :class:`Flavor`.
+        :param limit: maximum number of images to return (optional).
+        :param marker: Begin returning servers that appear later in the flavor
+                       list than that represented by this flavor id (optional).
         """
         qparams = {}
         # is_public is ternary - None means give all flavors.
         # By default Nova assumes True and gives admins public flavors
         # and flavors from their own projects only.
+        if marker:
+            qparams['marker'] = str(marker)
+        if limit:
+            qparams['limit'] = int(limit)
         if not is_public:
             qparams['is_public'] = is_public
         query_string = "?%s" % parse.urlencode(qparams) if qparams else ""
